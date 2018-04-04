@@ -1,0 +1,58 @@
+{
+  "package": "com.application.demo",
+  "name": "QuickMaster",
+  "versionName": "1.0.0",
+  "versionCode": "1",
+  "minPlatformVersion": "101",
+  "icon": "/Common/logo.png",
+  "features": [
+    { "name": "system.prompt" },
+    { "name": "system.router" },
+    { "name": "system.shortcut"},
+    { "name": "system.fetch" },
+    { "name": "system.device"},
+    { "name": "system.share"}
+   
+  ],
+  "permissions": [
+    { "origin": "*" }
+  ],
+  "config": {
+    "logLevel": "debug",
+    "designWidth": 750
+  },
+  "router": {
+    "entry": "HomePage",
+    "pages": {
+      "HomePage": {
+        "component": "index"
+      },
+      "DetailPage": {
+        "component": "index"
+      },
+      "About": {
+        "component": "index"
+      }
+    }
+  },
+  "display": {
+    "titleBarBackgroundColor": "#DDDDDD",
+    "titleBarTextColor": "#414141",
+    "menu":true,
+    "fullScreen": false,
+    "titleBar": true,
+    "pages": {
+      "HomePage": {
+        "titleBarText": "分类",
+        "menu": true
+      },
+      "DetailPage": {
+        "titleBarText": "详情页"
+      },
+      "About": {
+        "titleBarText": "关于页",
+        "menu": false
+      }
+    }
+  }
+}

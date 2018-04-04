@@ -1,0 +1,122 @@
+<template>
+  <div class="category-page">
+    <div class="progress-div" show={{progressxx}}>
+      <div class="progress-cdiv">
+        <progress type="circular"></progress>
+        <text>正在加载中...</text>
+      </div>
+    </div>
+
+
+    <list>
+      <block for="listxx">
+        <list-item type="category" onclick="jumpDetail($item.category)">
+          <text>{{$item.category}}</text>
+          <text class="count-text">当前博文数：{{$item.count}}</text>
+        </list-item>
+      </block>
+    </list>
+  </div>
+</template>
+
+<style>
+  list {
+    columns: 2;
+  }
+
+  .progress-cdiv,
+  .category-page {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .progress-div {
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  list-item {
+    flex-direction: column;
+    margin: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: #dddddd;
+    border-width: 3px;
+  }
+
+  list-item:focus {
+    background-color: #666666;
+  }
+
+  progress {
+    width: 80px;
+    height: 80px;
+  }
+
+  text {
+    width: 100%;
+    font-size: 40px;
+    align-content: center;
+    text-align: center;
+  }
+
+  .count-text {
+    width: 100%;
+    font-size: 30px;
+    color: rgb(180, 178, 178);
+    align-content: center;
+    text-align: center;
+  }
+
+  .btnx {
+    width: 550px;
+    height: 86px;
+    margin-top: 75px;
+    border-radius: 43px;
+    background-color: #09ba07;
+    font-size: 30px;
+    color: #ffffff;
+  }
+</style>
+
+<script>
+  import router from '@system.router'
+  import fetch from '@system.fetch'
+
+  export default {
+    data: {
+      listxx: [],
+      progressxx: true
+    },
+    onMenuPress() {
+      this.$app.showMenu()
+    }, onInit() {
+      this.getdata()
+    }, getdata() {
+      fetch.fetch({
+        url: "http://10.0.110.134:8090/masterWeiBo/category",
+        method: "GET",
+        success: function (data) {
+          console.log('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+          console.log('┃ url: ', "http://10.0.110.134:8090/masterWeiBo/category")
+          console.log('┃ method: ', "GET")
+          console.log('┃ data: ', JSON.stringify(data))
+          console.log('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+          // this.listxx = JSON.parse(data.data)['data']
+          // console.log(JSON.stringify(JSON.parse(data.data)['data']))
+          this.progressxx = false;
+          this.listxx = JSON.parse(data.data).data
+        }.bind(this),
+        fail: function (data, code) {
+          console.log("handling fail, code=" + code)
+        }
+      });
+    }, jumpDetail(category) {
+      router.push({
+        uri: '/DetailPage',
+        params: { "category": category }
+      })
+    }
+  }
+</script>

@@ -1,0 +1,208 @@
+<template>
+  <div class="category-page">
+    <div class="progress-div" show={{progressxx}}>
+      <div class="progress-cdiv">
+        <progress class="init-progress" type="circular"></progress>
+        <text>正在加载中...</text>
+      </div>
+    </div>
+
+
+    <list onscrollbottom="loadingMore">
+
+      <block for="listxx">
+        <list-item if="{{split($item.imgs)==null || split($item.imgs).length==0}}" class="list-item" type="artical" onclick="share($item.content,$item.timestr+' | '+$item.come)">
+          <text class="item-text">{{$item.content}}</text>
+          <text class="item-text2">{{$item.timestr}} | {{$item.come}}</text>
+        </list-item>
+
+        <list-item elif="{{split($item.imgs)!=null &&split($item.imgs).length<=3}}" class="list-item" type="artical1" onclick="share($item.content,$item.timestr+' | '+$item.come)">
+          <text class="item-text">{{$item.content}}</text>
+          <text class="item-text2">{{$item.timestr}} | {{$item.come}}</text>
+          <div class="img-div">
+          <block for="{{split($item.imgs)}}">
+            <image src="{{getImgUrl($item)}}" alt='/Common/logo.png'></image>
+          </block>
+          </div>
+        </list-item>
+
+        <list-item elif="{{split($item.imgs)!=null && split($item.imgs).length<=6}}" class="list-item" type="artical2" onclick="share($item.content,$item.timestr+' | '+$item.come)">
+          <text class="item-text">{{$item.content}}</text>
+          <text class="item-text2">{{$item.timestr}} | {{$item.come}}</text>
+          <div class="img-div">
+          <block for="{{split($item.imgs)}}">
+            <image src="{{getImgUrl($item)}}" alt='/Common/logo.png'></image>
+          </block>
+        </div>
+        </list-item>
+
+        <list-item else class="list-item" type="artical3" onclick="share($item.content,$item.timestr+ ' | '+$item.come) ">
+          <text class="item-text">{{$item.content}}</text>
+          <text class="item-text2">{{$item.timestr}} | {{$item.come}}</text>
+          <div class="img-div">
+            <block for="{{split($item.imgs)}}" if="{{split($item.imgs)!=null}}">
+              <image src="{{getImgUrl($item)}}" alt='/Common/logo.png'></image>
+            </block>
+          </div>
+        </list-item>
+
+      </block>
+      <list-item type="loadMore" class="load-status">
+        <progress type="circular" show="{{hasMoreData}} "></progress>
+        <text show="{{hasMoreData}} ">加载更多</text>
+        <text show="{{!hasMoreData}} ">没有更多了~</text>
+      </list-item>
+    </list>
+  </div>
+</template>
+
+<style>
+  .progress-cdiv,
+  .category-page {
+    flex-direction: column;
+    align-items: center;
+  }
+  .img-div{
+    flex-wrap:wrap;
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  list {
+    margin-top: 15px;
+  }
+
+  .progress-div {
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .load-status {
+    flex-direction: column;
+    align-items: center;
+    columns: 2;
+  }
+
+  .init-progress {
+    width: 80px;
+    height: 80px;
+  }
+
+  progress {
+    width: 40px;
+    height: 40px;
+  }
+
+  .item-text {
+    font-size: 40px;
+  }
+
+  .item-text2 {
+    margin-top: 5px;
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: gray;
+  }
+
+  image {
+    margin: 4.5px;
+    width: 32%;
+    height:221px;
+  }
+
+  .list-item {
+    flex-direction: column;
+    margin: 5px;
+    padding: 25px;
+    border: #dddddd;
+    border-width: 3px;
+  }
+</style>
+
+<script>
+  export default {
+    data: {
+      listxx: [],
+      category: " ",
+      progressxx: true,
+      hasMoreData: true,
+      isloading: true,
+      page: 1,
+      size: 10,
+    },
+    /**
+     * 当用户点击菜单按钮时触发，调用app中定义的方法showMenu
+     * 注意：使用加载器测试`创建桌面快捷方式`功能时，请先在`系统设置`中打开`应用加载器`的`桌面快捷方式`权限
+     */
+    onMenuPress() {
+      this.$app.showMenu()
+    }, doNet() {
+      this.$app.getData("articallist ", { "like_user ": this.$app.USER, category: this.category, pagenum: this.page, pagesize: this.size }, function (code, data) {
+        if (this.listxx == null) {
+          return;
+        }
+        if (code) {
+          if (this.page == 1) {
+            this.listxx = data
+          } else {
+            this.listxx = this.listxx.concat(data)
+          }
+          console.log(data)
+          if (data.size < this.size) {
+            this.hasMoreData = false;
+          }
+        } else {
+          if (this.page > 1) {
+            this.page--;
+          }
+          this.hasMoreData = false;
+
+          console.log(code)
+        }
+        this.isloading = false
+        this.progressxx = false
+      }.bind(this))
+    }, onInit() {
+      this.$page.setTitleBar({ text: this.category })
+      this.doNet()
+    }, loadingMore() {
+      if (!this.isloading) {
+        this.page++;
+        this.isloading = true;
+        this.doNet();
+      }
+    }, share(content, time) {
+      var prompt = require("@system.prompt")
+      var share = require("@system.share")
+      share.share({
+        type: "text/plain ",
+        data: content + "\n[ " + time + "] ",
+        success: function (data) {
+          prompt.showToast({
+            message: '分享成功'
+          })
+        },
+        fail: function (data, code) {
+          prompt.showToast({
+            message: '分享失败'
+          })
+        }
+      });
+    }, getImgUrl(url) {
+      console.log(url)
+      var fdStart = url.indexOf("http");
+      if (fdStart == 0) {
+        return url;
+      } else if (fdStart == -1) {
+        return "https:" + url;
+      }
+    }, split(imgs) {
+      if (imgs == null) {
+        return null;
+      } else {
+        var array = imgs.split(";")
+        return array;
+      }
+    }
+  }
+</script>
